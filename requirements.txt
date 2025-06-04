@@ -1,0 +1,2 @@
+Flask==3.0.3
+ai4bharat-transliteration==1.1.3
