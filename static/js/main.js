@@ -7,6 +7,9 @@ let caretPos = 0;
 // Mapping: Devanagari word -> original Hinglish
 const devToHinglish = {};
 
+let translationQueue = new Map(); // Queue to track pending translations
+let debounceTimer;
+
 // Helper: get word boundaries at a given position
 function getWordBoundaries(text, pos) {
     let start = pos, end = pos;
@@ -15,17 +18,65 @@ function getWordBoundaries(text, pos) {
     return [start, end];
 }
 
+// Add this debounce helper function
+function debounce(func, wait) {
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(debounceTimer);
+            func(...args);
+        };
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(later, wait);
+    };
+}
+
 // On input: update last word info
 inputBox.addEventListener('input', async (e) => {
     const value = inputBox.value;
     const cursor = inputBox.selectionStart;
-    const words = value.slice(0, cursor).split(/\s/);
-    const lastWord = words[words.length - 1];
-    lastWordStart = value.slice(0, cursor).lastIndexOf(lastWord);
-    lastWordEnd = lastWordStart + lastWord.length;
-    currentWord = lastWord;
-    caretPos = cursor;
+    const [wordStart, wordEnd] = getWordBoundaries(value, cursor);
+    const word = value.slice(wordStart, wordEnd);
+    
+    if (word.trim().length === 0) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+
+    // Store the current word position
+    const currentPosition = { start: wordStart, end: wordEnd };
+    
+    // Don't translate if it's already in queue
+    if (translationQueue.has(word)) return;
+    
+    // Add to translation queue
+    translationQueue.set(word, currentPosition);
+    
+    // Debounced translation request
+    debouncedTranslate(word, currentPosition);
 });
+
+// Create debounced translate function
+const debouncedTranslate = debounce(async (word, position) => {
+    try {
+        const res = await fetch('/transliterate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({word: word})
+        });
+        const data = await res.json();
+        
+        // Check if this word is still in the queue (user hasn't deleted it)
+        if (translationQueue.has(word)) {
+            if (data.suggestions && data.suggestions.length > 0) {
+                showSuggestions(data.suggestions, position.start, position.end);
+            }
+            translationQueue.delete(word);
+        }
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        translationQueue.delete(word);
+    }
+}, 300); // 300ms debounce delay
 
 // On space: replace last word with top suggestion and store mapping
 inputBox.addEventListener('keydown', async (e) => {
@@ -34,6 +85,7 @@ inputBox.addEventListener('keydown', async (e) => {
         const cursor = inputBox.selectionStart;
         const [start, end] = getWordBoundaries(value, cursor - 1);
         const word = value.slice(start, end);
+        console.log('Word detected:', word); // Debug log
         if (word.trim().length === 0) return; // Don't process empty
         e.preventDefault();
         // Fetch suggestions
@@ -43,6 +95,7 @@ inputBox.addEventListener('keydown', async (e) => {
             body: JSON.stringify({word: word})
         });
         const data = await res.json();
+        console.log('Suggestions received:', data.suggestions); // Debug log
         const top = data.suggestions[0] || word;
         // Store mapping: Devanagari -> Hinglish
         devToHinglish[top] = word;
@@ -56,47 +109,82 @@ inputBox.addEventListener('keydown', async (e) => {
 // Show suggestions dropdown at caret position
 function showSuggestions(suggestions, wordStart, wordEnd) {
     suggestionsBox.innerHTML = '';
-    const value = inputBox.value;
-    const originalWord = devToHinglish && devToHinglish[value.slice(wordStart, wordEnd)] 
-        ? devToHinglish[value.slice(wordStart, wordEnd)] 
-        : value.slice(wordStart, wordEnd);
     
-    let displaySuggestions = suggestions.slice(0, 5);
-    displaySuggestions = displaySuggestions.filter(s => s !== originalWord);
-    displaySuggestions.push(originalWord);
-    
-    displaySuggestions.forEach((s, i) => {
+    if (!suggestions || suggestions.length === 0) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+
+    // Create suggestions elements
+    suggestions.forEach((suggestion) => {
         const div = document.createElement('div');
-        div.className = 'suggestion' + (i === displaySuggestions.length - 1 ? ' original-suggestion' : '');
-        div.textContent = s;
-        div.onclick = () => selectSuggestion(s, wordStart, wordEnd);
+        div.className = 'suggestion';
+        div.textContent = suggestion;
+        div.onclick = () => {
+            selectSuggestion(suggestion, wordStart, wordEnd);
+            suggestionsBox.style.display = 'none';
+        };
         suggestionsBox.appendChild(div);
     });
 
-    positionSuggestionsBox(wordStart, displaySuggestions);
+    // Get text position using getTextPosition helper
+    const textPosition = getTextPosition(inputBox, wordStart, wordEnd);
+    
+    // Make suggestions box visible to get its dimensions
+    suggestionsBox.style.visibility = 'hidden';
+    suggestionsBox.style.display = 'block';
+    const suggestionsRect = suggestionsBox.getBoundingClientRect();
+
+    // Calculate position relative to viewport
+    let top = textPosition.bottom + window.scrollY + 5; // 5px below text
+    let left = textPosition.left + window.scrollX;
+
+    // Adjust if going outside viewport
+    if (left + suggestionsRect.width > window.innerWidth) {
+        left = window.innerWidth - suggestionsRect.width - 10;
+    }
+    if (top + suggestionsRect.height > window.innerHeight) {
+        top = textPosition.top - suggestionsRect.height - 5; // Show above text
+    }
+
+    // Apply position
+    suggestionsBox.style.top = `${top}px`;
+    suggestionsBox.style.left = `${left}px`;
+    suggestionsBox.style.visibility = 'visible';
 }
 
-// Position the suggestions box
-function positionSuggestionsBox(wordStart, displaySuggestions) {
+// Add this helper function to get precise text position
+function getTextPosition(textarea, start, end) {
     const mirror = document.getElementById('mirror');
-    const style = getComputedStyle(inputBox);
+    const style = window.getComputedStyle(textarea);
     
     // Copy textarea styles to mirror
-    Object.assign(mirror.style, {
-        font: style.font,
-        fontSize: style.fontSize,
-        lineHeight: style.lineHeight,
-        padding: style.padding,
-        border: style.border,
-        width: inputBox.offsetWidth + 'px',
-        boxSizing: style.boxSizing
-    });
-
-    // Position the suggestions box
-    const rect = getCaretCoordinates(inputBox, wordStart);
-    suggestionsBox.style.left = rect.left + 'px';
-    suggestionsBox.style.top = (rect.bottom + 5) + 'px';
-    suggestionsBox.style.display = 'block';
+    mirror.style.width = style.width;
+    mirror.style.font = style.font;
+    mirror.style.lineHeight = style.lineHeight;
+    mirror.style.padding = style.padding;
+    mirror.style.border = style.border;
+    mirror.style.boxSizing = style.boxSizing;
+    
+    // Get text before target word
+    const textBefore = textarea.value.substring(0, start);
+    const word = textarea.value.substring(start, end);
+    
+    // Create HTML content with marker
+    mirror.innerHTML = textBefore + '<span id="marker">' + word + '</span>';
+    
+    // Get marker position
+    const marker = document.getElementById('marker');
+    const markerRect = marker.getBoundingClientRect();
+    
+    return {
+        top: markerRect.top,
+        bottom: markerRect.bottom,
+        left: markerRect.left,
+        right: markerRect.right,
+        width: markerRect.width,
+        height: markerRect.height
+    };
 }
 
 // Replace word with selected suggestion
@@ -119,8 +207,8 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Handle PDF export
-document.getElementById('exportBtn').onclick = async function() {
+// Update the export handling
+async function handleExport() {
     const text = inputBox.value;
     try {
         const res = await fetch('/export_pdf', {
@@ -140,8 +228,41 @@ document.getElementById('exportBtn').onclick = async function() {
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
+        
+        // Close modal after successful download
+        closeModal();
     } catch (error) {
         console.error('Error exporting PDF:', error);
         alert('Failed to export PDF. Please try again.');
     }
-};
+}
+
+// Update modal event listeners
+const previewModal = document.getElementById('previewModal');
+const previewContent = document.getElementById('previewContent');
+const previewBtn = document.getElementById('previewBtn');
+const closePreview = document.getElementById('closePreview');
+const cancelPreview = document.getElementById('cancelPreview');
+const confirmExport = document.getElementById('confirmExport');
+
+previewBtn.addEventListener('click', () => {
+    previewContent.textContent = inputBox.value;
+    previewModal.classList.add('show'); // Use class instead of direct style
+    document.body.style.overflow = 'hidden';
+});
+
+function closeModal() {
+    previewModal.classList.remove('show'); // Remove class instead of setting style
+    document.body.style.overflow = 'auto';
+}
+
+closePreview.addEventListener('click', closeModal);
+cancelPreview.addEventListener('click', closeModal);
+confirmExport.addEventListener('click', handleExport);
+
+// Click outside modal to close
+previewModal.addEventListener('click', (e) => {
+    if (e.target === previewModal) {
+        closeModal();
+    }
+});

@@ -1,123 +1,439 @@
+:root {
+    --primary-color: #15257d;    /* Bihar Police Blue */
+    --secondary-color: #dc3545;  /* Government Red */
+    --accent-color: #ffc107;     /* Official Gold */
+    --text-dark: #333333;
+    --text-light: #ffffff;
+    --border-color: #dee2e6;
+}
+
 body {
     min-height: 100vh;
     margin: 0;
-    background: linear-gradient(120deg, #f8fafc 0%, #e0e7ef 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0;
+    background: #f8f9fa;
     font-family: 'Roboto', sans-serif;
+    color: var(--text-dark);
+    display: flex;
+    flex-direction: column;
 }
 
 #container {
+    flex: 1;
     background: #fff;
-    padding: 3em 2em 2em 2em;
-    border-radius: 18px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    min-width: 520px;
-    max-width: 700px;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.header-gov {
+    background: var(--primary-color);
+    color: var(--text-light);
+    padding: 15px 0;
+    text-align: center;
+    border-bottom: 3px solid var(--accent-color);
     width: 100%;
 }
 
-h1 {
-    text-align: center;
-    font-weight: 700;
-    color: #1a237e;
-    margin-bottom: 1.5em;
-    letter-spacing: 1px;
+.header-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    padding: 20px;
+    background: #fff;
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.header-logo img {
+    height: 100px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.header-logo img:hover {
+    transform: scale(1.05);
+}
+
+.logo-text {
+    text-align: left;
+}
+
+.logo-text h1 {
+    margin: 0;
+    font-size: 24px;
+    color: var(--primary-color);
+}
+
+.logo-text p {
+    margin: 5px 0;
+    font-size: 16px;
+    color: var(--text-dark);
+}
+
+.main-content {
+    flex: 1;
+    padding: 2em;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    max-width: min(1200px, 100%); /* Prevent overflow on small screens */
+}
+
+.editor-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 400px); /* Adjust based on header/footer height */
 }
 
 #inputBox {
+    flex: 1;
     width: 100%;
-    min-height: 120px;
-    font-size: 1.2em;
-    padding: 1em;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    min-height: 300px;
+    padding: 20px;
+    font-size: 16px;
+    line-height: 1.6;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
     outline: none;
     resize: vertical;
     box-sizing: border-box;
     font-family: 'Noto Sans Devanagari', 'Roboto', sans-serif;
     background: #fff;
-    margin-bottom: 0.5em;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    line-height: 1.5;
+    margin-bottom: 1em;
+    transition: all 0.3s ease;
 }
 
 #inputBox:focus {
-    border-color: #1976d2;
-    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(21, 37, 125, 0.1);
+}
+
+.editor-wrapper {
+    position: relative;
+    width: 100%;
 }
 
 #suggestions {
-    position: absolute;
+    position: fixed;
     background: #fff;
-    border: 1px solid #e0e0e0;
-    z-index: 10;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 9999;
     max-height: 200px;
     overflow-y: auto;
-    display: none;
+    min-width: 150px;
 }
 
 .suggestion {
-    padding: 0.5em 1em;
+    padding: 8px 15px;
     cursor: pointer;
-    font-size: 1.1em;
-    color: #333;
-    transition: background 0.15s;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.suggestion:last-child {
-    border-bottom: none;
+    font-size: 14px;
+    color: var(--text-dark);
+    transition: background 0.2s;
 }
 
 .suggestion:hover {
-    background: #f5f5f5;
+    background: #f8f9fa;
+    color: var(--primary-color);
 }
 
-/* Responsive Design */
-@media (max-width: 600px) {
-    #container {
-        min-width: 90vw;
-        padding: 1em;
-    }
-    #inputBox {
-        font-size: 1.2em;
-        min-height: 60px;
-    }
+/* Add button group styles */
+.button-group {
+    display: flex;
+    gap: 1em;
+    width: 100%;
+    max-width: min(1200px, calc(100% - 2em));
+    margin: 0 auto;
 }
 
-/* Suggestions Box Styling */
-#suggestions {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    background: #fff;
-    margin: 0;
-    padding: 0;
-    border: 1px solid #e0e0e0;
-    max-height: 200px;
-    overflow-y: auto;
-    min-width: 0;
-}
-
-.suggestion {
-    padding: 0.5em 1em;
+/* Update existing exportBtn styles to work in button group */
+#exportBtn, #previewBtn {
+    flex: 1;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
-    font-size: 1.1em;
-    color: #333;
-    transition: background 0.15s;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#exportBtn {
+    background: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+}
+
+#previewBtn {
+    background: #f8f9fa;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+}
+
+#previewBtn:hover {
+    background: #e9ecef;
+}
+
+/* Add modal styles */
+.modal-overlay {
+    display: none;  /* Keep only this one */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    padding: 20px;
+    overflow-y: auto;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Add this class to be used when modal is shown */
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    padding: 1em;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.modal-body {
+    padding: 2em;
+    background: #f8f9fa;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.preview-page {
+    background: white;
+    padding: 60px;
+    width: 21cm;
+    margin: 0 auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 16pt;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    min-height: 29.7cm;
+    box-sizing: border-box;
+}
+
+.modal-footer {
+    padding: 1em;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1em;
+}
+
+.close-btn {
     background: none;
     border: none;
-    border-bottom: 1px solid #f0f0f0;
-    margin: 0;
-    font-family: 'Noto Sans Devanagari', 'Roboto', sans-serif;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    line-height: 1;
 }
 
-.original-suggestion {
+/* Add styles for modal buttons */
+.modal-btn {
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 16px;
     font-weight: 500;
-    color: #1976d2;
-    font-family: 'Roboto', sans-serif;
-    margin-top: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+}
+
+.btn-primary:hover {
+    background: #1a2f99;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+}
+
+.footer-gov {
+    background: var(--primary-color);
+    color: var(--text-light);
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+    width: 100%;
+    margin-top: auto;
+}
+
+/* Government website specific styling */
+.page-title {
+    background: #f8f9fa;
+    padding: 15px max(20px, calc((100% - 1200px) / 2));
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.page-title h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+#mirror {
+    position: absolute;
+    visibility: hidden; /* Hide the element */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    top: 0;
+    left: 0;
+    pointer-events: none; /* Prevent any interaction */
+    opacity: 0; /* Make fully transparent */
+    z-index: -1; /* Place behind other elements */
+}
+
+@media (max-width: 768px) {
+    body {
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .main-content {
+        padding: 1em;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .editor-wrapper {
+        min-height: calc(100vh - 300px);
+        width: 100%;
+    }
+    
+    #inputBox {
+        padding: 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .header-logo {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .header-logo img {
+        height: 80px;
+    }
+
+    .logo-text {
+        text-align: center;
+    }
+    
+    .page-title {
+        padding: 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    #exportBtn {
+        max-width: calc(100% - 2em);
+        margin: 0 auto;
+    }
+
+    /* Update responsive styles */
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .preview-page {
+        padding: 20px;
+        width: 100%;
+        min-height: auto;
+    }
+    
+    .modal-content {
+        margin: 10px;
+    }
+}
+
+/* Add smaller screen support */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 0.5em;
+    }
+
+    #inputBox {
+        padding: 10px;
+    }
+
+    .header-gov {
+        padding: 10px 0;
+    }
+
+    .header-logo img {
+        height: 70px;
+    }
+
+    .logo-text h1 {
+        font-size: 20px;
+    }
+
+    .logo-text p {
+        font-size: 14px;
+    }
 }
