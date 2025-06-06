@@ -210,6 +210,11 @@ document.addEventListener('click', (e) => {
 // Update the export handling
 async function handleExport() {
     const text = inputBox.value;
+    // if (!text.trim()) {
+    //     alert('Please enter some text before exporting.');
+    //     return;
+    // }
+
     try {
         const res = await fetch('/export_pdf', {
             method: 'POST',
@@ -228,22 +233,29 @@ async function handleExport() {
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
-        
-        // Close modal after successful download
-        closeModal();
+
+        // Only close modal if we're in preview mode
+        if (previewModal.classList.contains('show')) {
+            closeModal();
+        }
     } catch (error) {
         console.error('Error exporting PDF:', error);
         alert('Failed to export PDF. Please try again.');
     }
 }
 
-// Update modal event listeners
+// Update event listeners section
 const previewModal = document.getElementById('previewModal');
 const previewContent = document.getElementById('previewContent');
 const previewBtn = document.getElementById('previewBtn');
 const closePreview = document.getElementById('closePreview');
 const cancelPreview = document.getElementById('cancelPreview');
 const confirmExport = document.getElementById('confirmExport');
+const mainExportBtn = document.getElementById('exportBtn');
+
+// Add event listeners for both export buttons
+mainExportBtn.addEventListener('click', handleExport);
+confirmExport.addEventListener('click', handleExport);
 
 previewBtn.addEventListener('click', () => {
     previewContent.textContent = inputBox.value;
@@ -258,11 +270,3 @@ function closeModal() {
 
 closePreview.addEventListener('click', closeModal);
 cancelPreview.addEventListener('click', closeModal);
-confirmExport.addEventListener('click', handleExport);
-
-// Click outside modal to close
-previewModal.addEventListener('click', (e) => {
-    if (e.target === previewModal) {
-        closeModal();
-    }
-});
