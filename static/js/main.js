@@ -270,3 +270,39 @@ function closeModal() {
 
 closePreview.addEventListener('click', closeModal);
 cancelPreview.addEventListener('click', closeModal);
+
+// Add click handler for input box
+inputBox.addEventListener('click', async (e) => {
+    const value = inputBox.value;
+    const cursor = inputBox.selectionStart;
+    const [wordStart, wordEnd] = getWordBoundaries(value, cursor);
+    const word = value.slice(wordStart, wordEnd);
+    
+    if (word.trim().length === 0) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+
+    try {
+        const res = await fetch('/transliterate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({word: word})
+        });
+        const data = await res.json();
+        
+        if (data.suggestions && data.suggestions.length > 0) {
+            // Use existing showSuggestions function to maintain positioning
+            showSuggestions(data.suggestions, wordStart, wordEnd);
+        }
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+    }
+});
+
+// Update click outside handler to be more specific but keep existing behavior
+document.addEventListener('click', (e) => {
+    if (!suggestionsBox.contains(e.target) && e.target !== inputBox) {
+        suggestionsBox.style.display = 'none';
+    }
+});
