@@ -437,3 +437,81 @@ body {
         font-size: 14px;
     }
 }
+
+/* Add format selector styles */
+.format-selector {
+    margin-bottom: 2em;
+    padding: 1em;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.format-selector select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+}
+
+/* Form styles */
+.format-form {
+    display: none;
+}
+
+.format-form.active {
+    display: block;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5em;
+    margin-bottom: 2em;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+    font-family: 'Noto Sans Devanagari', 'Roboto', sans-serif;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Preview page updates */
+.preview-page {
+    padding: 40px;
+}
+
+.preview-header {
+    text-align: center;
+    margin-bottom: 2em;
+}
+
+.preview-content {
+    line-height: 1.8;
+}

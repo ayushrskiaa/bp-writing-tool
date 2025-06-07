@@ -30,14 +30,65 @@
                 <h2>Hinglish to Devanagari Converter</h2>
             </div>
 
-            <div class="editor-wrapper">
-                <textarea id="inputBox" 
-                         autocomplete="off" 
-                         autofocus 
-                         placeholder="यहाँ Hinglish में टाइप करें..."></textarea>
-                <div id="mirror"></div>
+            <div class="format-selector">
+                <label for="documentFormat">Select Document Format:</label>
+                <select id="documentFormat">
+                    <option value="free">Free Format</option>
+                    <option value="fir">FIR Report</option>
+                    <option value="statement">Witness Statement</option>
+                    <option value="memo">Police Memo</option>
+                    <option value="report">Investigation Report</option>
+                    <option value="notice">Police Notice</option>
+                </select>
             </div>
-            
+
+            <!-- Dynamic form container -->
+            <div id="formContainer">
+                <!-- Free format (current) -->
+                <div class="format-form" id="freeFormat">
+                    <div class="editor-wrapper">
+                        <textarea id="inputBox" 
+                                 autocomplete="off" 
+                                 autofocus 
+                                 placeholder="यहाँ Hinglish में टाइप करें..."></textarea>
+                        <div id="mirror"></div>
+                    </div>
+                </div>
+
+                <!-- FIR Report format -->
+                <div class="format-form" id="firFormat" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>एफ.आई.आर. संख्या:</label>
+                            <input type="text" class="hinglish-input" data-field="firNumber" 
+                                   placeholder="FIR Number">
+                        </div>
+                        <div class="form-group">
+                            <label>दिनांक:</label>
+                            <input type="date" data-field="date">
+                        </div>
+                        <div class="form-group">
+                            <label>थाना:</label>
+                            <input type="text" class="hinglish-input" data-field="policeStation" 
+                                   placeholder="Police Station">
+                        </div>
+                        <div class="form-group">
+                            <label>शिकायतकर्ता का नाम:</label>
+                            <input type="text" class="hinglish-input" data-field="complainantName" 
+                                   placeholder="Complainant Name">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>घटना का विवरण:</label>
+                            <textarea class="hinglish-input" data-field="description" rows="5"
+                                      placeholder="Incident Description"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add similar blocks for other formats -->
+                <!-- ... -->
+            </div>
+
             <div id="suggestions"></div>
             
             <div class="button-group">
@@ -45,7 +96,6 @@
                     <span>पूर्वावलोकन (Preview)</span>
                 </button>
                 <button id="exportBtn">
-                    
                     <span>निर्यात करें (Export as PDF)</span>
                 </button>
             </div>
@@ -77,6 +127,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

@@ -31,7 +31,9 @@ def translit():
 def export_pdf():
     data = request.json
     text = data.get('text', '')
+    format_type = data.get('format', 'free')
     
+    # Add format-specific styling
     html_content = f'''
     <html>
         <head>
@@ -44,16 +46,25 @@ def export_pdf():
                     font-family: "Noto Sans Devanagari", Mangal;
                     font-size: 16pt;
                     line-height: 1.5;
-                    white-space: pre-wrap;
                 }}
-                div {{
+                .header {{
+                    text-align: center;
+                    margin-bottom: 2em;
+                }}
+                .content {{
                     white-space: pre-wrap;
                     word-wrap: break-word;
+                }}
+                /* Add format-specific styles */
+                .fir-format {{
+                    line-height: 2;
                 }}
             </style>
         </head>
         <body>
-            <div>{text}</div>
+            <div class="{format_type}-format">
+                {text}
+            </div>
         </body>
     </html>
     '''
