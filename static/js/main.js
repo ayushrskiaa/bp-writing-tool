@@ -20,6 +20,9 @@ const formats = document.querySelectorAll('.format-form');
 // --- Hinglish Input Setup ---
 function setupHinglishInput(input) {
     input.addEventListener('input', async (e) => {
+        // Feature 2: Skip translation if Shift is pressed
+        if (e.shiftKey) return;
+
         const value = input.value;
         const cursor = input.selectionStart;
         const [wordStart, wordEnd] = getWordBoundaries(value, cursor);
@@ -33,6 +36,19 @@ function setupHinglishInput(input) {
     });
 
     input.addEventListener('keydown', async (e) => {
+        // Feature 1: Insert tab character on Tab key
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const value = input.value;
+            const cursor = input.selectionStart;
+            input.value = value.slice(0, cursor) + '\t' + value.slice(cursor);
+            input.selectionStart = input.selectionEnd = cursor + 1;
+            return;
+        }
+
+        // Feature 2: Skip translation if Shift is pressed
+        if (e.shiftKey) return;
+
         if (e.key === ' ') {
             e.preventDefault();
             await handleSpaceTranslation(input, devToHinglish);
@@ -40,6 +56,8 @@ function setupHinglishInput(input) {
     });
 
     input.addEventListener('click', async (e) => {
+        if (e.shiftKey) return; // Feature 2: Skip if Shift is pressed
+
         const value = input.value;
         const cursor = input.selectionStart;
         const [wordStart, wordEnd] = getWordBoundaries(value, cursor);
