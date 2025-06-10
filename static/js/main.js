@@ -19,6 +19,20 @@ const formats = document.querySelectorAll('.format-form');
 
 // --- Auto-select Free Format on Page Load ---
 window.addEventListener('DOMContentLoaded', () => {
+    // Restore main inputBox
+    if (localStorage.getItem('inputBoxValue')) {
+        inputBox.value = localStorage.getItem('inputBoxValue');
+        // Optionally, trigger translation for the whole input
+        // await handleFullInputTranslation(inputBox);
+    }
+    // Restore all .hinglish-input fields
+    document.querySelectorAll('.hinglish-input').forEach((el, idx) => {
+        const saved = localStorage.getItem('hinglishInput_' + idx);
+        if (saved !== null) el.value = saved;
+        // Optionally, trigger translation for the whole input
+        // await handleFullInputTranslation(el);
+    });
+
     formatSelector.value = 'free';
     formats.forEach(form => form.style.display = 'none');
     const freeFormat = document.getElementById('freeFormat');
@@ -58,8 +72,8 @@ function setupHinglishInput(input) {
         // Feature 2: Skip translation if Shift is pressed
         if (e.shiftKey && e.key === 'Enter') return;
 
-        // Translation on space or Enter (but only translate on Enter if Shift is NOT pressed)
-        if (e.key === ' ' && !e.shiftKey || (e.key === 'Enter' && !e.shiftKey)) {
+        // Save Hinglish before translation on space/enter
+        if (e.key === ' ' || (e.key === 'Enter' && !e.shiftKey)) {
             e.preventDefault();
             await handleSpaceTranslation(input, devToHinglish);
             // For Enter, also insert a new line after translation
@@ -166,9 +180,20 @@ async function handleExport() {
 exportBtn.addEventListener('click', handleExport);
 confirmExport.addEventListener('click', handleExport);
 
+// Save Hinglish as user types (not after translation)
+inputBox.addEventListener('input', () => {
+    localStorage.setItem('inputBoxValue', inputBox.value);
+});
+document.querySelectorAll('.hinglish-input').forEach((el, idx) => {
+    el.addEventListener('input', () => {
+        localStorage.setItem('hinglishInput_' + idx, el.value);
+    });
+});
+
 // Hide suggestions on click outside
 document.addEventListener('click', (e) => {
     if (!suggestionsBox.contains(e.target) && !e.target.classList.contains('hinglish-input') && e.target !== inputBox) {
         suggestionsBox.style.display = 'none';
     }
 });
+
