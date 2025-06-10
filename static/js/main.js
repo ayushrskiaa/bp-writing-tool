@@ -17,6 +17,15 @@ const confirmExport = document.getElementById('confirmExport');
 const formContainer = document.getElementById('formContainer');
 const formats = document.querySelectorAll('.format-form');
 
+// --- Auto-select Free Format on Page Load ---
+window.addEventListener('DOMContentLoaded', () => {
+    formatSelector.value = 'free';
+    formats.forEach(form => form.style.display = 'none');
+    const freeFormat = document.getElementById('freeFormat');
+    if (freeFormat) freeFormat.style.display = 'block';
+    setupAllHinglishInputs();
+});
+
 // --- Hinglish Input Setup ---
 function setupHinglishInput(input) {
     input.addEventListener('input', async (e) => {
@@ -47,11 +56,19 @@ function setupHinglishInput(input) {
         }
 
         // Feature 2: Skip translation if Shift is pressed
-        if (e.shiftKey) return;
+        if (e.shiftKey && e.key === 'Enter') return;
 
-        if (e.key === ' ') {
+        // Translation on space or Enter (but only translate on Enter if Shift is NOT pressed)
+        if (e.key === ' ' && !e.shiftKey || (e.key === 'Enter' && !e.shiftKey)) {
             e.preventDefault();
             await handleSpaceTranslation(input, devToHinglish);
+            // For Enter, also insert a new line after translation
+            if (e.key === 'Enter') {
+                const value = input.value;
+                const cursor = input.selectionStart;
+                input.value = value.slice(0, cursor) + '\n' + value.slice(cursor);
+                input.selectionStart = input.selectionEnd = cursor + 1;
+            }
         }
     });
 
@@ -87,7 +104,6 @@ function selectSuggestion(s, wordStart, wordEnd, input) {
 function setupAllHinglishInputs() {
     document.querySelectorAll('.hinglish-input, #inputBox').forEach(setupHinglishInput);
 }
-setupAllHinglishInputs();
 
 // --- Format Handling ---
 formatSelector.addEventListener('change', (e) => {
