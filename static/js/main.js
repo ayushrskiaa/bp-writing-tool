@@ -9,6 +9,7 @@ const suggestionsBox = document.getElementById('suggestions');
 const formatSelector = document.getElementById('documentFormat');
 const previewBtn = document.getElementById('previewBtn');
 const exportBtn = document.getElementById('exportBtn');
+const exportFirBtn = document.getElementById('exportFirBtn');
 const previewModal = document.getElementById('previewModal');
 const previewContent = document.getElementById('previewContent');
 const closePreview = document.getElementById('closePreview');
@@ -136,49 +137,82 @@ function closeModal() {
     document.body.style.overflow = 'auto';
 }
 
+
+function getCurrentFormatElement() {
+    return document.querySelector('.format-form:not([style*="display: none"])');
+}
+
+// Helper: Get plain preview HTML (no inputs/textareas)
+function getPreviewHTML(format) {
+    if (format.id === 'freeFormat') {
+        const textarea = format.querySelector('textarea');
+        return `<div style="white-space:pre-line;font-size:1.1em;">${textarea.value}</div>`;
+    }
+    if (format.id === 'firFormat') {
+        // Clone and replace all inputs/textareas with their values as underlined spans
+        const clone = format.cloneNode(true);
+        clone.querySelectorAll('input, textarea').forEach(el => {
+            let value = el.value || '';
+            if (el.type === 'date' && value) {
+                // Format date as dd-mm-yyyy
+                const d = new Date(value);
+                value = !isNaN(d) ? `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth()+1).padStart(2, '0')}-${d.getFullYear()}` : '';
+            }
+            const span = document.createElement('span');
+            span.textContent = value || '__________';
+            span.style.borderBottom = '1px solid #000';
+            span.style.minWidth = el.style.width || '40px';
+            span.style.display = 'inline-block';
+            span.style.padding = '2px 4px';
+            el.parentNode.replaceChild(span, el);
+        });
+        return clone.innerHTML;
+    }
+    return '';
+}
+
+// Preview button logic
 previewBtn.addEventListener('click', () => {
-    previewContent.textContent = getFormattedContent(formatSelector, inputBox);
+    const currentFormat = getCurrentFormatElement();
+    if (!currentFormat) return;
+    previewContent.innerHTML = getPreviewHTML(currentFormat);
     previewModal.classList.add('show');
     document.body.style.overflow = 'hidden';
 });
+
+// Modal close
 closePreview.addEventListener('click', closeModal);
 cancelPreview.addEventListener('click', closeModal);
 
-async function handleExport() {
-    const text = getFormattedContent(formatSelector, inputBox);
-    if (!text.trim()) {
-        alert('Please enter the required information before exporting.');
-        return;
-    }
-    try {
-        const res = await fetch('/export_pdf', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                text,
-                format: formatSelector.value
-            })
-        });
-        if (!res.ok) throw new Error('PDF generation failed');
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "exported_text.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        if (previewModal.classList.contains('show')) {
-            closeModal();
-        }
-    } catch (error) {
-        console.error('Error exporting PDF:', error);
-        alert('Failed to export PDF. Please try again.');
-    }
-}
-exportBtn.addEventListener('click', handleExport);
-confirmExport.addEventListener('click', handleExport);
+exportBtn.addEventListener('click', () => {
+    const currentFormat = getCurrentFormatElement();
+    if (!currentFormat) return;
+    const html = `
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Export</title>
+        <link rel="stylesheet" href="static/css/style.css">
+        <style>
+            body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 40px; }
+        </style>
+    </head>
+    <body>
+        ${getPreviewHTML(currentFormat)}
+    </body>
+    </html>
+    `;
+    const blob = new Blob([html], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    const printWindow = window.open(url, '_blank');
+    printWindow.onload = function() {
+        printWindow.focus();
+        printWindow.print();
+        URL.revokeObjectURL(url);
+    };
+    if (previewModal.classList.contains('show')) closeModal();
+});
+
 
 // Save Hinglish as user types (not after translation)
 inputBox.addEventListener('input', () => {
@@ -196,4 +230,20 @@ document.addEventListener('click', (e) => {
         suggestionsBox.style.display = 'none';
     }
 });
+
+// Auto-resize all FIR table textareas as user types and on page load
+function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
+}
+
+// On input
+document.addEventListener('input', function(e) {
+    if (e.target.matches('.fir-table textarea')) {
+        autoResizeTextarea(e.target);
+    }
+});
+
+// On page load, for any pre-filled textareas
+document.querySelectorAll('.fir-table textarea').forEach(autoResizeTextarea);
 

@@ -18,10 +18,14 @@ export function getFormattedContent(formatSelector, inputBox) {
     if (format === 'free') {
         return inputBox.value;
     }
-    const formData = {};
-    const form = document.getElementById(`${format}Format`);
-    form.querySelectorAll('[data-field]').forEach(input => {
-        formData[input.dataset.field] = input.value;
-    });
-    return formatTemplates[format](formData);
+    if (format === 'fir') {
+        const form = document.getElementById('firFormat');
+        const data = {};
+        form.querySelectorAll('[data-field]').forEach(input => {
+            data[input.dataset.field] = input.value;
+        });
+        // You can format this as needed for backend export
+        return JSON.stringify(data);
+    }
+    return '';
 }

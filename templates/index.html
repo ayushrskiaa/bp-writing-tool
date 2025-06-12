@@ -34,10 +34,6 @@
                 <select id="documentFormat">
                     <option value="free">Free Format</option>
                     <option value="fir">FIR Report</option>
-                    <option value="statement">Witness Statement</option>
-                    <option value="memo">Police Memo</option>
-                    <option value="report">Investigation Report</option>
-                    <option value="notice">Police Notice</option>
                 </select>
             </div>
 
@@ -56,40 +52,65 @@
 
                 <!-- FIR Report format -->
                 <div class="format-form" id="firFormat" style="display: none;">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>एफ.आई.आर. संख्या:</label>
-                            <input type="text" class="hinglish-input" data-field="firNumber" 
-                                   placeholder="FIR Number">
+                    <div id="firExportLayout" class="fir-export-layout">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                अनुसूची 47, प्रपत्र संख्या 120 अ<br>
+                                आ0 ह0 प्रपत्र संख्या 30 अ
+                            </div>
+                            <div style="text-align:right;">
+                                केस डायरी सं-<input class="fir-input" data-field="case_diary_no" style="width:60px;">
+                                <br>
+                                (नियम-<input class="fir-input" data-field="rule_no" style="width:40px;">)
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>दिनांक:</label>
-                            <input type="date" data-field="date">
+                        <div style="margin-top: 10px;">
+                            <span style="float:right;">विशेष रिपोर्ट केस सं.<input class="fir-input" data-field="special_report_no" style="width:80px;"></span>
+                            <span><input class="fir-input hinglish-input" data-field="against" style="width:80px;">बनाम<input class="fir-input hinglish-input" data-field="against" style="width:80px;"></span>
                         </div>
-                        <div class="form-group">
-                            <label>थाना:</label>
-                            <input type="text" class="hinglish-input" data-field="policeStation" 
-                                   placeholder="Police Station">
+                        <div style="margin-top: 10px;">
+                            थाना<input class="fir-input hinglish-input" data-field="thana" style="width:60px;">
+                            जिला<input class="fir-input hinglish-input" data-field="district" style="width:60px;">
+                            प्रथम इतिाला रिपोर्ट सं.<input class="fir-input hinglish-input" data-field="fir_number" style="width:40px;"> 
+                            तिथि<input class="fir-input" data-field="fir_date" type="date" style="width:110px;">
+                            घटना की तिथि और स्थान <input class="fir-input hinglish-input" data-field="event_date_place" style="width:120px;">
+                            धाराः <input class="fir-input hinglish-input" data-field="sections" style="width:180px;">
+                            <br>
                         </div>
-                        <div class="form-group">
-                            <label>शिकायतकर्ता का नाम:</label>
-                            <input type="text" class="hinglish-input" data-field="complainantName" 
-                                   placeholder="Complainant Name">
-                        </div>
-                        <div class="form-group full-width">
-                            <label>घटना का विवरण:</label>
-                            <textarea class="hinglish-input" data-field="description" rows="5"
-                                      placeholder="Incident Description"></textarea>
-                        </div>
+                        <!-- Only the table part for FIR format -->
+                        <table class="fir-table" style="width:100%; margin-top:20px; border-collapse:collapse;">
+                            <tr>
+                                <td style="width:50%; border:1px solid #000; vertical-align:top; padding:8px;">
+                                    <b>किन तिथि को समय<br>
+                                    महिला कार्रवाई की गई, और किन-किन स्थानों को जाकर देखा गया |</b>
+                                </td>
+                                <td style="border:1px solid #000; vertical-align:top; padding:8px;">
+                                    <b>अन्वेषण का अभिलेख</b><br>
+                                    <div>(01)</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border:1px solid #000; vertical-align:top; padding:8px;">
+                                    <b>प्राथमिकी</b><br>
+                                    दिनांक : <input class="fir-input" data-field="complaint_date" type="date"><br>
+                                    समय : <input class="fir-input hinglish-input" data-field="complaint_time" style="width:60px;">
+                                    <textarea class="fir-input hinglish-input" data-field="right_bottom" 
+                                        style="width:98%;min-height:50px;resize:none;margin-top:8px;overflow:hidden;line-height:1.5;white-space:pre-wrap;"
+                                        oninput="this.style.height='50px';this.style.height=(this.scrollHeight)+'px';"></textarea>
+                                </td>
+                                <td style="border:1px solid #000; vertical-align:top; padding:8px;">
+                                    <textarea class="fir-input hinglish-input" data-field="right_bottom" style="width:98%;height:100px;resize:none;margin-top:8px;"></textarea>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
+                    
                 </div>
 
                 <!-- Add similar blocks for other formats -->
                 <!-- ... -->
             </div>
 
-            <div id="suggestions"></div>
-            
             <div class="button-group">
                 <button id="previewBtn">
                     <span>पूर्वावलोकन (Preview)</span>
@@ -125,6 +146,8 @@
             </div>
         </div>
     </div>
+
+    <div id="suggestions" class="suggestions-box"></div>
 
     <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

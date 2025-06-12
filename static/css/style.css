@@ -515,3 +515,68 @@ body {
 .preview-content {
     line-height: 1.8;
 }
+
+.fir-template {
+    font-family: 'Noto Sans Devanagari', Arial, sans-serif;
+    margin: 20px;
+    border: 1px solid #000;
+    padding: 20px;
+    background: #fff;
+}
+.fir-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+.fir-row {
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+.fir-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.fir-table td {
+    border: 1px solid #000;
+    vertical-align: top;
+    padding: 8px;
+}
+.fir-input {
+    border: none;
+    border-bottom: 1px solid #000;
+    background: transparent;
+    font-size: 1rem;
+    outline: none;
+    min-width: 40px;
+    margin: 0 2px;
+}
+.fir-export-layout {
+    font-family: 'Noto Sans Devanagari', Arial, sans-serif;
+    margin: 20px;
+    background: #fff;
+}
+.fir-export-layout input.fir-input,
+.fir-export-layout textarea.fir-input {
+    border: none;
+    border-bottom: 1px solid #000;
+    background: transparent;
+    font-size: 1rem;
+    outline: none;
+    min-width: 40px;
+    margin: 0 2px;
+    padding: 2px 4px;
+}
+.fir-export-layout textarea.fir-input {
+    vertical-align: top;
+}
+@media print {
+    #exportFirBtn, #previewFirBtn { display: none; }
+    .fir-input, .fir-input:focus, .fir-input:active {
+        border: none;
+        border-bottom: 1px solid #000;
+        background: transparent;
+        color: #000;
+        box-shadow: none;
+    }
+}
