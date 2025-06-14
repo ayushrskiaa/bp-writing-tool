@@ -7,7 +7,6 @@ import { formatTemplates, getFormattedContent } from './formats.js';
 const inputBox = document.getElementById('inputBox');
 const suggestionsBox = document.getElementById('suggestions');
 const formatSelector = document.getElementById('documentFormat');
-const previewBtn = document.getElementById('previewBtn');
 const exportBtn = document.getElementById('exportBtn');
 const exportFirBtn = document.getElementById('exportFirBtn');
 const previewModal = document.getElementById('previewModal');
@@ -171,14 +170,7 @@ function getPreviewHTML(format) {
     return '';
 }
 
-// Preview button logic
-previewBtn.addEventListener('click', () => {
-    const currentFormat = getCurrentFormatElement();
-    if (!currentFormat) return;
-    previewContent.innerHTML = getPreviewHTML(currentFormat);
-    previewModal.classList.add('show');
-    document.body.style.overflow = 'hidden';
-});
+
 
 // Modal close
 closePreview.addEventListener('click', closeModal);

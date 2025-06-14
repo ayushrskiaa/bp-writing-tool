@@ -1,0 +1,38 @@
+{
+  "name": "bp-writing-tool",
+  "version": "1.0.0",
+  "description": "A simple, production-quality web app for fast and accurate Hinglish (Roman Hindi) to Devanagari (Hindi script) transliteration with suggestions, powered by AI4Bharat's IndicXlit.",
+  "main": "electron.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^36.4.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.yourcompany.bpwritingtool",
+    "productName": "BP Writing Tool",
+    "files": [
+      "dist/app.exe",
+      "electron.js",
+      "static/**/*",
+      "templates/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/app.exe",
+        "to": "app.exe"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
